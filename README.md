@@ -42,12 +42,13 @@ Tested with Python 3.10, PyTorch 2.x, CUDA 11.8+.
 
 ## Motion Triplet Dataset
 
-The Motion Triplet Dataset is built upon the [Multi-Cam Video Dataset](https://github.com/jianhongbai/ReCamMaster) (136K videos, 13.6K scenes, 40 Unreal Engine 5 environments) by adding geometry-grounded motion descriptions.
+The Motion Triplet Dataset is built upon the Multi-Cam Video Dataset(136K videos, 13.6K scenes, 40 Unreal Engine 5 environments) by adding geometry-grounded motion descriptions.
 
-**Captioning pipeline:**
-1. Convert per-frame camera extrinsics to relative trajectories
-2. Map significant motions to canonical operations (Dolly, Pan, Tilt) organized into temporal phases
-3. Prompt Qwen3-4B-Instruct to generate short summaries and detailed paragraph descriptions
+1. First, download Multi-Cam Video Dataset [Multi-Cam Video Dataset](https://github.com/KlingAIResearch/ReCamMaster?tab=readme-ov-file) under MotionTriplet directory
+2. Then download Motion Descriptions from xxxx.
+3. Finally, run preparing_dataset.py.
+
+The structure of Full Dataset would be as below:
 
 ### Directory Structure
 
