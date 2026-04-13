@@ -45,7 +45,7 @@ Tested with Python 3.10, PyTorch 2.x, CUDA 11.8+.
 The Motion Triplet Dataset is built upon the Multi-Cam Video Dataset(136K videos, 13.6K scenes, 40 Unreal Engine 5 environments) by adding geometry-grounded motion descriptions.
 
 1. First, download Multi-Cam Video Dataset [Multi-Cam Video Dataset](https://github.com/KlingAIResearch/ReCamMaster?tab=readme-ov-file) under MotionTriplet-Dataset directory.
-2. Then download Motion Descriptions from [Google Drive](https://drive.google.com/file/d/1k4c7M6ttohMEXq1EVn7PARg0f8M7fLBA/view?usp=sharing) and put it under MotionTriplet-Dataset directory.
+2. Then download Motion Descriptions from [Google Drive](https://drive.google.com/file/d/1VD-9rAHo1vJH_Vtx0NOFGzeDr5TfBh6I/view?usp=sharing) and put it under MotionTriplet-Dataset directory.
 3. Finally, run below code to prepare dataset for training.
 ```bash
 python merge_datasets.py
