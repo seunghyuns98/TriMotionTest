@@ -72,24 +72,6 @@ MotionTriplet-Dataset/
 │           └── merged_conditions.json
 ```
 
-### Metadata Format (`merged_conditions.json`)
-
-```json
-{
-    "Cam01": {
-        "extrinsics": {
-            [[4x4 matrix per frame], ...]
-        }
-        "captions": {
-            "long": "The camera begins with a steady counterclockwise rotation, forming an orbiting motion...",
-            "short": "Orbit left, then dolly forward",
-            "text": "The video showcases a dimly lit, nocturnal suburban scene."
-        }
-    }
-    ...
-}
-```
-
 ### Preprocess Embeddings
 
 Precompute and cache embeddings before training:
