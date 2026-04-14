@@ -40,6 +40,94 @@ Built on top of [Wan2.1](https://github.com/Wan-Video/Wan2.1) and supports both 
 
 ---
 
+## ⚙️ Installation
+
+Tested with **Python 3.10**, **PyTorch 2.x**, **CUDA 11.8+**.
+
+```bash
+git clone https://github.com/<your-org>/TriMotion.git
+cd TriMotion
+
+pip install torch torchvision
+pip install transformers diffusers accelerate deepspeed
+pip install pytorch-lightning
+pip install "huggingface_hub[cli]"
+pip install decord einops scipy pillow numpy
+```
+
+---
+
+## 📦 Download Pretrained Weights
+
+We use [Wan2.1-T2V-1.3B](https://huggingface.co/Wan-AI/Wan2.1-T2V-1.3B) as the diffusion backbone, along with an additional CLIP checkpoint required for the I2V branch.
+
+```bash
+# 1) Wan2.1-T2V-1.3B (T5 text encoder, VAE, DiT)
+hf download Wan-AI/Wan2.1-T2V-1.3B \
+    --local-dir checkpoint/Wan2.1-T2V-1.3B
+
+# 2) CLIP image encoder (open-clip-xlm-roberta-large-vit-huge-14)
+hf download DeepBeepMeep/Wan2.1 \
+    models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth \
+    --revision 8bee6e003d1d9d31ecb2c75b643e57fa74fb2ad5 \
+    --local-dir ./checkpoint/Wan2.1-T2V-1.3B
+```
+
+After downloading, the `checkpoint/` directory should look like:
+
+```
+checkpoint/
+└── Wan2.1-T2V-1.3B/
+    ├── models_t5_umt5-xxl-enc-bf16.pth
+    ├── Wan2.1_VAE.pth
+    ├── diffusion_pytorch_model.safetensors
+    └── models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth
+```
+
+You also need the TriMotion-specific checkpoints (Stage 1 / Stage 2 / Stage 3). Place them under `./checkpoint/`:
+
+| Checkpoint | Description | Link |
+|---|---|---|
+| Stage 1 — Unified Motion Embedding Space | Video / text / pose encoders | *(coming soon)* |
+| Stage 2 — Motion Embedding Predictor | Latent → motion embedding | *(coming soon)* |
+| Stage 3 — Wan2.1 Fine-tuned DiT | Camera-controlled I2V / V2V | *(coming soon)* |
+| VGGT | Video motion encoder backbone | [facebookresearch/vggt](https://github.com/facebookresearch/vggt) |
+
+---
+
+## 🚀 Inference
+
+### Multimodal demo (single example)
+
+```bash
+python demo_multimodal_single.py \
+    --content_video  path/to/source.mp4 \
+    --ref_video      path/to/ref.mp4 \
+    --prompt         "A cinematic shot of a snowy mountain at sunset." \
+    --camera_caption "The camera tilts up very fast." \
+    --output_dir     ./results/single \
+    --mode           v2v
+```
+
+Key options:
+
+- `--scale` — blend weight between video-based and text-based camera trajectory (0 = text only, 1 = ref video only).
+- `--mode` — `i2v` or `v2v`.
+- `--first_frame` — optional image path for I2V mode.
+
+### Batch / CSV demo
+
+```bash
+python demo_mutlimodal.py \
+    --dataset_path demo/example_csv/infer/example_camclone_testset.csv \
+    --output_dir   ./results/batch \
+    --mode         v2v
+```
+
+---
+
+---
+
 ## 🎬 Motion Triplet Dataset
 
 We release the **Motion Triplet Dataset**, built upon the [MultiCamVideo Dataset](https://github.com/KlingAIResearch/ReCamMaster) (136K videos, 13.6K scenes, 40 Unreal Engine 5 environments) by adding geometry-grounded motion descriptions.
