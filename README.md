@@ -1,58 +1,60 @@
+<div align="center">
+
 # TriMotion: Modality-Agnostic Camera Control for Video Generation
 
-<!-- > **ECCV 2026** | [Paper](#) | [Project Page](#) | [Demo](#) -->
+<!-- [![Paper](https://img.shields.io/badge/Paper-arXiv-red)](#) -->
+<!-- [![Project Page](https://img.shields.io/badge/Project-Page-blue)](#) -->
+<!-- [![Demo](https://img.shields.io/badge/Demo-HuggingFace-yellow)](#) -->
+<!-- [![Dataset](https://img.shields.io/badge/Dataset-GoogleDrive-green)](#) -->
 
-TriMotion is a unified framework for camera-controlled video generation that maps **video, pose, and text** inputs describing the same camera trajectory into a **shared motion embedding space**. This modality-agnostic design enables flexible and consistent camera control from heterogeneous user inputs, built on top of [WAN-Video](https://github.com/Wan-Video/Wan2.1).
+<!-- **ECCV 2026** -->
 
----
+*A unified framework for camera-controlled video generation that accepts **video**, **pose**, or **text** — all describing the same camera trajectory — and maps them into a shared motion embedding space.*
 
-## Overview
+</div>
 
-Existing camera-control methods are typically restricted to a single input modality — pose-conditioned methods require precise geometric trajectories, reference-video methods lack explicit control, and text-based methods struggle with temporal consistency. TriMotion addresses all three limitations in a single framework.
-
-**Key components:**
-1. **Unified Motion Embedding Space** — aligns video, pose, and text in a shared representation via contrastive learning, temporal synchronization, and geometric fidelity regularization
-2. **Motion Triplet Dataset** — 136K synchronized (video, pose, text) triplets built on the Multi-Cam Video Dataset with LLM-generated geometry-grounded captions
-3. **Latent Motion Consistency** — a Motion Embedding Predictor that enforces trajectory fidelity directly in latent space, avoiding costly pixel-space decoding
-
-**Three-Stage Training Pipeline:**
-
-```
-Stage 1: Train Unified Motion Embedding Space  (video + text + pose alignment)
-    ↓
-Stage 2: Train Motion Embedding Predictor      (latent → motion embedding)
-    ↓
-Stage 3: Train WAN-Video Diffusion Model   (camera-controlled I2V / V2V)
-```
+<!-- <p align="center">
+  <img src="assets/teaser.gif" width="90%">
+</p> -->
 
 ---
 
-## Requirements
+## 📢 News
+
+<!-- - **[2026-03]** TriMotion is accepted to ECCV 2026. 🎉 -->
+- **[2026-04]** Code, checkpoints, and the **Motion Triplet Dataset** are released.
+
+---
+
+## 🔍 Overview
+
+Existing camera-control methods are typically restricted to a single input modality — pose-conditioned methods require precise geometric trajectories, reference-video methods lack explicit control, and text-based methods struggle with temporal consistency. **TriMotion** addresses all three limitations in one framework.
+
+**Key contributions**
+
+1. **Unified Motion Embedding Space** — aligns video, pose, and text in a shared representation via contrastive learning, temporal synchronization, and geometric fidelity regularization.
+2. **Motion Triplet Dataset** — 136K synchronized *(video, pose, text)* triplets built on top of the MultiCamVideo Dataset with LLM-generated, geometry-grounded captions.
+3. **Latent Motion Consistency** — a Motion Embedding Predictor that enforces trajectory fidelity directly in latent space, avoiding costly pixel-space decoding.
+
+Built on top of [Wan2.1](https://github.com/Wan-Video/Wan2.1) and supports both **I2V** and **V2V** camera-controlled generation.
+
+---
+
+## 🎬 Motion Triplet Dataset
+
+We release the **Motion Triplet Dataset**, built upon the [MultiCamVideo Dataset](https://github.com/KlingAIResearch/ReCamMaster) (136K videos, 13.6K scenes, 40 Unreal Engine 5 environments) by adding geometry-grounded motion descriptions.
+
+**Preparation**
+
+1. Download the **MultiCamVideo Dataset** into the `MotionTriplet-Dataset/` directory.
+2. Download our **Motion Descriptions** from [Google Drive](https://drive.google.com/file/d/1k4c7M6ttohMEXq1EVn7PARg0f8M7fLBA/view?usp=sharing).
+3. Run the preparation script:
 
 ```bash
-pip install torch torchvision
-pip install transformers diffusers accelerate deepspeed
-pip install pytorch-lightning
-pip install decord einops scipy pillow numpy
+python preparing_dataset.py
 ```
 
-Tested with Python 3.10, PyTorch 2.x, CUDA 11.8+.
-
----
-
-## Motion Triplet Dataset
-
-The Motion Triplet Dataset is built upon the Multi-Cam Video Dataset(136K videos, 13.6K scenes, 40 Unreal Engine 5 environments) by adding geometry-grounded motion descriptions.
-
-1. First, download Multi-Cam Video Dataset [Multi-Cam Video Dataset](https://github.com/KlingAIResearch/ReCamMaster?tab=readme-ov-file) under MotionTriplet-Dataset directory.
-2. Then download Motion Descriptions from [Google Drive](https://drive.google.com/file/d/1VD-9rAHo1vJH_Vtx0NOFGzeDr5TfBh6I/view?usp=sharing) and put it under MotionTriplet-Dataset directory.
-3. Finally, run below code to prepare dataset for training.
-```bash
-python merge_datasets.py
-```
-The structure of Full Dataset would be as below:
-
-### Directory Structure
+**Directory structure**
 
 ```
 MotionTriplet-Dataset/
