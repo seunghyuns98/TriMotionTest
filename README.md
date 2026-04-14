@@ -100,64 +100,76 @@ gdown --folder https://drive.google.com/drive/folders/1tQznlZwoSTFRzDhgmikVCGAbD
 
 ## 🚀 Inference
 
-`demo.py` runs a single-example inference. You must provide a source video (`--content_video`), a scene prompt (`--prompt`), and **at least one** camera reference among `--ref_video` / `--ref_text` / `--ref_pose`. If several are provided, their motion embeddings are averaged.
+### Single Modality
+
+`demo.py` runs a single-example inference. You must provide a source video (`--content_video`), a scene prompt (`--prompt`), and **at least one** camera reference among `--ref_video` / `--ref_text` / `--ref_pose`.
 
 ```bash
 python demo.py \
-    --content_video demo/example_test_data/videos/3.mp4 \
-    --prompt        demo/example_test_data/texts/3.txt \
-    --ref_video     demo/example_test_data/videos/1.mp4 \
-    --output_dir    ./results/single \
+    --content_video examples/src_videos/1.mp4 \
+    --prompt        examples/prompt/1.txt \
+    --ref_video     examples/ref_videos/1.mp4 \
+    --output_dir    ./results \
     --mode          v2v
 ```
 
-### Reference modalities
+#### Reference modalities
 
 | Flag | Accepts | Example |
 |---|---|---|
 | `--ref_video` | `.mp4` / any decord-readable video | `--ref_video path/to/ref.mp4` |
-| `--ref_text`  | raw string **or** `.txt` file path | `--ref_text demo/example_test_data/ref_texts/cam03.txt` |
-| `--ref_pose`  | `.json` (per-cam extrinsics) / `.npy` / `.pt` | `--ref_pose demo/example_test_data/cameras/per_cam/cam03.json` |
+| `--ref_text`  | raw string **or** `.txt` file path | `--ref_text path/to/ref.txt` |
+| `--ref_pose`  | `.json` (per-cam extrinsics) / `.npy` / `.pt` | `--ref_pose path/to/ref.json` |
 
 - `--prompt` also accepts either a raw string or a `.txt` file path.
-- For JSON pose files containing multiple cameras, pick one with `--ref_pose_cam_key cam01`.
-- Pose sampling is controlled by `--pose_max_num_frames` (default 81) and `--pose_frame_interval` (default 4) — matches the training dataloader.
+- If you are using examples/src_videos ref_video and prompt should have same number without ext.
 
-### Other options
+#### Other options
 
 - `--mode` — `i2v` or `v2v` (default `v2v`).
 - `--first_frame` — optional image for I2V first frame. If omitted, the first frame of `--content_video` is used.
 - `--dit_num_frames`, `--dit_height`, `--dit_width` — output shape (default 81 / 384 / 672).
 - `--cfg_scale`, `--num_inference_steps`, `--seed` — standard diffusion controls.
-- `--output_name` — output filename stem (default `generated.mp4`). The ref-modality tag is appended automatically, e.g. `generated_video.mp4`, `generated_text_pose.mp4`.
+- `--output_name` — output filename stem (default `generated.mp4`). The ref-modality tag is appended automatically, e.g. `generated_video.mp4`, `generated_text.mp4`.
 
-### Examples
+#### Examples
 
 Reference video only:
 ```bash
 python demo.py \
-    --content_video demo/example_test_data/videos/3.mp4 \
-    --prompt        demo/example_test_data/texts/3.txt \
-    --ref_video     demo/example_test_data/videos/1.mp4
+    --content_video examples/src_videos/3.mp4 \
+    --prompt        examples/prompt/3.txt \
+    --ref_video     examples/ref_videos/1.mp4
 ```
 
 Reference text only:
 ```bash
 python demo.py \
-    --content_video demo/example_test_data/videos/3.mp4 \
-    --prompt        demo/example_test_data/texts/3.txt \
-    --ref_text      demo/example_test_data/ref_texts/cam03.txt
+    --content_video examples/src_videos/3.mp4 \
+    --prompt        examples/prompt/3.txt \
+    --ref_text      examples/ref_texts/cam01.txt \
 ```
 
 Reference pose only (JSON extrinsics):
 ```bash
 python demo.py \
-    --content_video demo/example_test_data/videos/3.mp4 \
-    --prompt        demo/example_test_data/texts/3.txt \
-    --ref_pose      demo/example_test_data/cameras/per_cam/cam03.json
+    --content_video examples/src_videos/3.mp4 \
+    --prompt        examples/prompt/3.txt \
+    --ref_pose      examples/ref_poses/cam01.txt \
 ```
 
-### Batch / CSV demo
+### Multi Modality
+
+`demo.py` runs a single-example inference. You must provide a source video (`--content_video`), a scene prompt (`--prompt`), and **at least one** camera reference among `--ref_video` / `--ref_text` / `--ref_pose`.
+
+```bash
+python demo.py \
+    --content_video examples/src_videos/1.mp4 \
+    --prompt        examples/prompt/1.txt \
+    --ref_video     examples/ref_videos/1.mp4 \
+    --output_dir    ./results \
+    --mode          v2v
+```
 
 ```bash
 python demo_mutlimodal.py \
