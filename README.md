@@ -95,7 +95,6 @@ gdown --folder https://drive.google.com/drive/folders/1tQznlZwoSTFRzDhgmikVCGAbD
 | Stage 1 — Unified Motion Embedding Space | Video / text / pose encoders |
 | Stage 2 — Motion Embedding Predictor | Latent → motion embedding |
 | Stage 3 — Wan2.1 Fine-tuned DiT | Camera-controlled I2V / V2V |
-| VGGT — [facebookresearch/vggt](https://github.com/facebookresearch/vggt) | Video motion encoder backbone |
 
 ---
 
