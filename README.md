@@ -84,14 +84,24 @@ checkpoint/
     └── models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth
 ```
 
-You also need the TriMotion-specific checkpoints (Stage 1 / Stage 2 / Stage 3). Place them under `./checkpoint/`:
+You also need the TriMotion-specific checkpoints (Stage 1 / Stage 2 / Stage 3), available from our [Google Drive folder](https://drive.google.com/drive/folders/1tQznlZwoSTFRzDhgmikVCGAbDiO6YAVs?usp=sharing). Download the entire folder with [`gdown`](https://github.com/wkentaro/gdown):
 
-| Checkpoint | Description | Link |
-|---|---|---|
-| Stage 1 — Unified Motion Embedding Space | Video / text / pose encoders | *(coming soon)* |
-| Stage 2 — Motion Embedding Predictor | Latent → motion embedding | *(coming soon)* |
-| Stage 3 — Wan2.1 Fine-tuned DiT | Camera-controlled I2V / V2V | *(coming soon)* |
-| VGGT | Video motion encoder backbone | [facebookresearch/vggt](https://github.com/facebookresearch/vggt) |
+```bash
+pip install gdown
+
+# Download the whole TriMotion checkpoint folder into ./checkpoint/trimotion/
+gdown --folder https://drive.google.com/drive/folders/1tQznlZwoSTFRzDhgmikVCGAbDiO6YAVs \
+      -O ./checkpoint/trimotion
+```
+
+> 💡 If `gdown` hits a quota error for large files, re-run the same command — partially downloaded files will be resumed. For very large files you may need `gdown --fuzzy <file-url>` on individual items.
+
+| Checkpoint | Description |
+|---|---|
+| Stage 1 — Unified Motion Embedding Space | Video / text / pose encoders |
+| Stage 2 — Motion Embedding Predictor | Latent → motion embedding |
+| Stage 3 — Wan2.1 Fine-tuned DiT | Camera-controlled I2V / V2V |
+| VGGT — [facebookresearch/vggt](https://github.com/facebookresearch/vggt) | Video motion encoder backbone |
 
 ---
 
