@@ -13,9 +13,9 @@
 
 </div>
 
-<!-- <p align="center">
+<p align="center">
   <img src="assets/teaser.png" width="90%">
-</p> -->
+</p>
 
 ---
 
