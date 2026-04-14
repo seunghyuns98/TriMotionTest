@@ -42,10 +42,8 @@ Built on top of [Wan2.1](https://github.com/Wan-Video/Wan2.1) and supports both 
 
 ## ⚙️ Installation
 
-Tested with **Python 3.10**, **PyTorch 2.x**, **CUDA 11.8+**.
-
 ```bash
-git clone https://github.com/<your-org>/TriMotion.git
+git clone https://github.com/seunghyuns98/TriMotion.git
 cd TriMotion
 
 pip install -r requirements.txt
