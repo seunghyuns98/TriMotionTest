@@ -180,8 +180,6 @@ python demo_mutlimodal.py \
 
 ---
 
----
-
 ## 🎬 Motion Triplet Dataset
 
 We release the **Motion Triplet Dataset**, built upon the [MultiCamVideo Dataset](https://github.com/KlingAIResearch/ReCamMaster) (136K videos, 13.6K scenes, 40 Unreal Engine 5 environments) by adding geometry-grounded motion descriptions.
