@@ -48,11 +48,7 @@ Tested with **Python 3.10**, **PyTorch 2.x**, **CUDA 11.8+**.
 git clone https://github.com/<your-org>/TriMotion.git
 cd TriMotion
 
-pip install torch torchvision
-pip install transformers diffusers accelerate deepspeed
-pip install pytorch-lightning
-pip install "huggingface_hub[cli]"
-pip install decord einops scipy pillow numpy
+pip install -r requirements.txt
 ```
 
 ---
