@@ -281,7 +281,7 @@ python latent_preprocess.py \
 Fine-tunes WAN-Video with motion embedding conditioning via block-specific projection MLPs. Jointly trains I2V and V2V with equal probability per iteration.
 
 ```bash
-train_TriMotion.py \
+train_trimotion.py \
     --vae_projector_ckpt_path PATH TO YOUR VAE PROJECTOR WEIGHT \
     --output_path ./checkpoint/tri_motion
 ```
