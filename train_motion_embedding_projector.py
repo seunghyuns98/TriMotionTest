@@ -4,7 +4,7 @@ import torch.nn.functional as F
 from dataloader import VAE_Alignment
 from diffsynth import WanVideoMultimodalPipeline, ModelManager
 
-from model import Shared_Embedding_Space, VAE_Projector
+from model import Cam_Encoder, VAE_Projector
 
 # CUDA 최적화 설정
 torch.backends.cudnn.benchmark = True
@@ -40,7 +40,7 @@ class LightningModelForTrain(pl.LightningModule):
         self.pipe = WanVideoMultimodalPipeline.from_model_manager(model_manager)
         self.pipe.scheduler.set_timesteps(1000, training=True)
 
-        self.cam_encoder = Shared_Embedding_Space(
+        self.cam_encoder = Cam_Encoder(
             img_size=img_size,
             patch_size=patch_size,
             embed_dim=embed_dim,
@@ -187,7 +187,7 @@ def parse_args():
     parser.add_argument(
         "--dataset_path",
         type=str,
-        default=None,
+        default="./MotionTriplet-Dataset",
         help="The path of the Motion Triplet Dataset.",
     )
 
@@ -208,8 +208,7 @@ def parse_args():
     parser.add_argument(
         "--vae_path",
         type=str,
-        default=None,
-        required=True,
+        default="checkpoint/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth",
         help="Path of VAE.",
     )
 
@@ -245,7 +244,7 @@ def parse_args():
     parser.add_argument(
         "--cam_ckpt_path",
         type=str,
-        default=None,
+        default="checkpoint/trimotion/embedding_space.ckpt",
         required=True,
         help="Path to CAM encoder checkpoint.",
     )

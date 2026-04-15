@@ -3,7 +3,7 @@ import lightning as pl
 import torch.nn.functional as F
 from dataloader import Embedding_Space
 from utils.losses import InfoNCE_Loss
-from model import Shared_Embedding_Space
+from model import Cam_Encoder
 
 torch.backends.cudnn.benchmark = True
 torch.backends.cudnn.deterministic = False
@@ -29,7 +29,7 @@ class LightningModelForTrain(pl.LightningModule):
         
         print(f"Loading Encoder with img_size={img_size}, patch_size={patch_size}, embed_dim={embed_dim}, output_dim={output_dim}")
         
-        self.cam_encoder = Shared_Embedding_Space(
+        self.cam_encoder = Cam_Encoder(
             img_size=img_size,
             patch_size=patch_size,
             embed_dim=embed_dim,
@@ -175,8 +175,7 @@ def parse_args():
     parser.add_argument(
         "--dataset_path",
         type=str,
-        default="../Datasets/MultiCamVideo-Dataset",
-        required=True,
+        default="./MotionTriplet-Dataset",
         help="The path of the Motion Triplet Dataset.",
     )
 
@@ -219,8 +218,7 @@ def parse_args():
     parser.add_argument(
         "--vggt_ckpt_path",
         type=str,
-        default=None,
-        required=True,
+        default="checkpoint/trimotion/aggregator.ckpt",
         help="Path to pretrained VGGT checkpoint (optional, loads aggregator from HuggingFace by default).",
     )
 
