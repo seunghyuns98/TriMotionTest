@@ -90,12 +90,13 @@ gdown --folder https://drive.google.com/drive/folders/1tQznlZwoSTFRzDhgmikVCGAbD
 
 > 💡 If `gdown` hits a quota error for large files, re-run the same command — partially downloaded files will be resumed. For very large files you may need `gdown --fuzzy <file-url>` on individual items.
 
-| Checkpoint | Description |
+| File | Description |
 |---|---|
-| Unified Motion Embedding Space | Video / text / pose encoders |
-| Motion Embedding Predictor | Latent → motion embedding |
-| Wan2.1 Fine-tuned DiT | Camera-controlled I2V / V2V (fine-tuned from the [CamCloneMaster-Wan2.1](https://huggingface.co/KwaiVGI/CamCloneMaster-Wan2.1) I2V model) |
-| VGGT Aggregator | Aggregator weights extracted from [VGGT](https://github.com/facebookresearch/vggt) and used to initialize the video motion encoder (required for both training and inference) |
+| `embedding_space.ckpt` | Unified Motion Embedding Space — video / text / pose encoders |
+| `vae_projection.ckpt` | Motion Embedding Predictor — latent → motion embedding |
+| `trimotion.ckpt` | Wan2.1 fine-tuned DiT — camera-controlled I2V / V2V |
+| `i2v_baseline.ckpt` | I2V initialization from [CamCloneMaster-Wan2.1](https://huggingface.co/KwaiVGI/CamCloneMaster-Wan2.1), used as the starting point for DiT fine-tuning |
+| `aggregator.ckpt` | VGGT Aggregator weights extracted from [VGGT](https://github.com/facebookresearch/vggt) — initializes the video motion encoder (required for both training and inference) |
 
 ---
 
