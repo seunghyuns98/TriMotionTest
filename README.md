@@ -78,7 +78,7 @@ checkpoint/
     └── models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth
 ```
 
-You also need the TriMotion-specific checkpoints (Stage 1 / Stage 2 / Stage 3), available from our [Google Drive folder](https://drive.google.com/drive/folders/1tQznlZwoSTFRzDhgmikVCGAbDiO6YAVs?usp=sharing). Download the entire folder with [`gdown`](https://github.com/wkentaro/gdown):
+You also need the TriMotion-specific checkpoints, available from our [Google Drive folder](https://drive.google.com/drive/folders/1tQznlZwoSTFRzDhgmikVCGAbDiO6YAVs?usp=sharing). Download the entire folder with [`gdown`](https://github.com/wkentaro/gdown):
 
 ```bash
 pip install gdown
@@ -92,9 +92,10 @@ gdown --folder https://drive.google.com/drive/folders/1tQznlZwoSTFRzDhgmikVCGAbD
 
 | Checkpoint | Description |
 |---|---|
-| Stage 1 — Unified Motion Embedding Space | Video / text / pose encoders |
-| Stage 2 — Motion Embedding Predictor | Latent → motion embedding |
-| Stage 3 — Wan2.1 Fine-tuned DiT | Camera-controlled I2V / V2V |
+| Unified Motion Embedding Space | Video / text / pose encoders |
+| Motion Embedding Predictor | Latent → motion embedding |
+| Wan2.1 Fine-tuned DiT | Camera-controlled I2V / V2V |
+| VGGT Aggregator | Aggregator weights extracted from [VGGT](https://github.com/facebookresearch/vggt) and used to initialize the video motion encoder (required for both training and inference) |
 
 ---
 
@@ -155,6 +156,18 @@ python demo.py \
 
 - `--type interpolation` — linearly blends the two embeddings: `target = scale · e₀ + (1 − scale) · e₁`. Set the blend with `--scale` (0.0–1.0).
 - `--type sequential` — concatenates the two motion sequences in time to form a compound trajectory. Use `--order {video,text,pose}` to pick which provided modality goes first; the other one goes second.
+
+```bash
+python demo_multimodal.py \
+    --content_video examples/src_videos/2.mp4 \
+    --prompt        examples/prompt/2.txt \
+    --ref_pose     examples/ref_poses/cam01.json \
+    --ref_text     examples/ref_texts/cam05.txt \
+    --type          sequential \
+    --order         pose \
+    --output_dir    ./results/multimodal \
+    --mode          v2v
+```
 
 #### Examples
 
@@ -230,7 +243,7 @@ python latent_preprocess.py \
     --json_path ./data/merged_camera_dataset.json \
     --t5_path path/to/t5-base \
     --vggt_path path/to/vggt \
-    --embedding_model_path path/to/stage1_checkpoint \
+    --embedding_model_path path/to/motion_embedding_checkpoint \
     --output_dir ./data
 ```
 
@@ -238,7 +251,7 @@ python latent_preprocess.py \
 
 ## Training
 
-### Stage 1: Unified Motion Embedding Space
+### Unified Motion Embedding Space
 
 Trains motion encoders for all three modalities with a composite loss: global InfoNCE alignment, temporal synchronization, and geometric fidelity regularization.
 
@@ -248,13 +261,13 @@ python train_embedding_space.py \
     --json_path ./data/merged_camera_dataset.json \
     --t5_path path/to/t5-base \
     --vggt_path path/to/vggt \
-    --output_dir ./checkpoint/stage1 \
+    --output_dir ./checkpoint/embedding_space \
     --batch_size 16 \
     --lr 1e-4 \
     --epochs 100
 ```
 
-### Stage 2: Motion Embedding Predictor
+### Motion Embedding Predictor
 
 Trains the predictor (3D convolutions + temporal Transformer) to estimate motion embeddings from VAE latents, using a dual-granularity cosine similarity loss (global + frame-wise).
 
@@ -262,14 +275,14 @@ Trains the predictor (3D convolutions + temporal Transformer) to estimate motion
 python train_motion_embedding_projector.py \
     --base_path ./data \
     --json_path ./data/merged_camera_dataset.json \
-    --embedding_model_path ./checkpoint/stage1/best.ckpt \
-    --output_dir ./checkpoint/stage2 \
+    --embedding_model_path ./checkpoint/embedding_space/best.ckpt \
+    --output_dir ./checkpoint/predictor \
     --batch_size 24 \
     --lr 1e-4 \
     --epochs 10
 ```
 
-### Stage 3: Diffusion Model Fine-tuning
+### Diffusion Model Fine-tuning
 
 Fine-tunes WAN-Video with motion embedding conditioning via block-specific projection MLPs. Jointly trains I2V and V2V with equal probability per iteration.
 
@@ -279,9 +292,9 @@ deepspeed train_TriMotion.py \
     --json_path ./data/merged_camera_dataset.json \
     --wan_model_path path/to/wan-video \
     --t5_path path/to/t5-base \
-    --embedding_model_path ./checkpoint/stage1/best.ckpt \
-    --projector_path ./checkpoint/stage2/best.ckpt \
-    --output_dir ./checkpoint/stage3 \
+    --embedding_model_path ./checkpoint/embedding_space/best.ckpt \
+    --projector_path ./checkpoint/predictor/best.ckpt \
+    --output_dir ./checkpoint/trimotion_dit \
     --batch_size 4 \
     --lr 1e-4 \
     --deepspeed_stage 2
