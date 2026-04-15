@@ -156,18 +156,6 @@ python demo.py \
 - `--type interpolation` — linearly blends the two embeddings: `target = scale · e₀ + (1 − scale) · e₁`. Set the blend with `--scale` (0.0–1.0).
 - `--type sequential` — concatenates the two motion sequences in time to form a compound trajectory. Use `--order {video,text,pose}` to pick which provided modality goes first; the other one goes second.
 
-```bash
-python demo_multimodal.py \
-    --content_video examples/src_videos/2.mp4 \
-    --prompt        examples/prompt/2.txt \
-    --ref_pose     examples/ref_poses/cam01.json \
-    --ref_text     examples/ref_texts/cam05.txt \
-    --type          sequential \
-    --order         pose \
-    --output_dir    ./results/multimodal \
-    --mode          v2v
-```
-
 #### Examples
 
 Interpolate between a reference video and a reference text (50/50 blend):
