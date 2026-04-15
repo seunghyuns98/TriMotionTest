@@ -270,8 +270,7 @@ Trains the predictor (3D convolutions + temporal Transformer) to estimate motion
 ```bash
 python train_motion_embedding_projector.py \
     --dataset_path ./MotionTriplet-Dataset \
-    --vae_path ./checkpoint/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth \
-    --cam_ckpt_path ./checkpoint/embedding_space/best.ckpt \
+    --cam_ckpt_path PATH TO YOUR CAM ENCODER FROM PREVIOUS STAGE \
     --output_path ./checkpoint/motion_embedding_projector
 ```
 
@@ -285,10 +284,6 @@ Fine-tunes WAN-Video with motion embedding conditioning via block-specific proje
 deepspeed train_TriMotion.py \
     --dataset_path ./MotionTriplet-Dataset \
     --latent_path ./latent \
-    --text_encoder_path ./checkpoint/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth \
-    --image_encoder_path ./checkpoint/Wan2.1-T2V-1.3B/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth \
-    --vae_path ./checkpoint/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth \
-    --dit_path ./checkpoint/Wan2.1-T2V-1.3B/diffusion_pytorch_model.safetensors \
     --i2v_ckpt_path ./checkpoint/embedding_space/best.ckpt \
     --vae_projector_ckpt_path ./checkpoint/motion_embedding_projector/best.ckpt \
     --output_path ./checkpoint/tri_motion
