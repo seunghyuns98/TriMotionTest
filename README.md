@@ -3,7 +3,7 @@
 # TriMotion: Modality-Agnostic Camera Control for Video Generation
 
 
-*A unified framework for camera-controlled video generation that accepts **video**, **pose**, or **text** — all describing the same camera trajectory — and maps them into a shared motion embedding space.*
+*A unified framework for camera-controlled video generation that accepts **video**, **pose**, or **text**, all describing the same camera trajectory, and maps them into a shared motion embedding space.*
 
 </div>
 
