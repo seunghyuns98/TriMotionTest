@@ -48,6 +48,7 @@ cd TriMotion
 conda create -n TriMotion python=3.10
 conda activate TriMotion
 pip install -r requirements.txt
+pip install flash_attn==2.8.3 --no-build-isolation
 ```
 
 ---
