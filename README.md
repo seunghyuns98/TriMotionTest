@@ -137,46 +137,73 @@ python demo.py \
 Reference video only:
 ```bash
 python demo.py \
-    --content_video examples/src_videos/3.mp4 \
-    --prompt        examples/prompt/3.txt \
+    --content_video examples/src_videos/1.mp4 \
+    --prompt        examples/prompt/1.txt \
     --ref_video     examples/ref_videos/1.mp4
 ```
 
 Reference text only:
 ```bash
 python demo.py \
-    --content_video examples/src_videos/3.mp4 \
-    --prompt        examples/prompt/3.txt \
-    --ref_text      examples/ref_texts/cam01.txt \
+    --content_video examples/src_videos/1.mp4 \
+    --prompt        examples/prompt/1.txt \
+    --ref_text      examples/ref_texts/cam04.txt \
 ```
 
 Reference pose only (JSON extrinsics):
 ```bash
 python demo.py \
-    --content_video examples/src_videos/3.mp4 \
-    --prompt        examples/prompt/3.txt \
-    --ref_pose      examples/ref_poses/cam01.txt \
+    --content_video examples/src_videos/1.mp4 \
+    --prompt        examples/prompt/1.txt \
+    --ref_pose      examples/ref_poses/cam02.txt \
 ```
 
 ### Multi Modality
 
-`demo.py` runs a single-example inference. You must provide a source video (`--content_video`), a scene prompt (`--prompt`), and **at least one** camera reference among `--ref_video` / `--ref_text` / `--ref_pose`.
+`demo_multimodal.py` combines **exactly two** reference modalities from `--ref_video` / `--ref_text` / `--ref_pose` by fusing their motion embeddings. Two fusion modes are supported:
+
+- `--type interpolation` — linearly blends the two embeddings: `target = scale · e₀ + (1 − scale) · e₁`. Set the blend with `--scale` (0.0–1.0).
+- `--type sequential` — concatenates the two motion sequences in time to form a compound trajectory. Use `--order {video,text,pose}` to pick which provided modality goes first; the other one goes second.
 
 ```bash
-python demo.py \
-    --content_video examples/src_videos/1.mp4 \
-    --prompt        examples/prompt/1.txt \
-    --ref_video     examples/ref_videos/1.mp4 \
-    --output_dir    ./results \
+python demo_multimodal.py \
+    --content_video examples/src_videos/2.mp4 \
+    --prompt        examples/prompt/2.txt \
+    --ref_pose     examples/ref_poses/cam01.json \
+    --ref_text     examples/ref_texts/cam05.txt \
+    --type          sequential \
+    --order         pose \
+    --output_dir    ./results/multimodal \
     --mode          v2v
 ```
 
+#### Examples
+
+Interpolate between a reference video and a reference text (50/50 blend):
 ```bash
-python demo_mutlimodal.py \
-    --dataset_path demo/example_csv/infer/example_camclone_testset.csv \
-    --output_dir   ./results/batch \
-    --mode         v2v
+python demo_multimodal.py \
+    --content_video examples/src_videos/2.mp4 \
+    --prompt        examples/prompt/2.txt \
+    --ref_pose     examples/ref_poses/cam01.json \
+    --ref_text     examples/ref_texts/cam05.txt \
+    --type          interpolation \
+    --scale         0.5 \
+    --output_dir    ./results/multimodal
 ```
+
+Sequential composition (text motion first, then pose motion):
+```bash
+python demo_multimodal.py \
+    --content_video examples/src_videos/2.mp4 \
+    --prompt        examples/prompt/2.txt \
+    --ref_pose     examples/ref_poses/cam01.json \
+    --ref_text     examples/ref_texts/cam05.txt \
+    --type          sequential \
+    --order         pose \
+    --output_dir    ./results/multimodal
+```
+
+All other flags (`--mode`, `--first_frame`, `--dit_num_frames/height/width`, `--cfg_scale`, `--num_inference_steps`, `--seed`, `--output_name`) behave the same as in `demo.py`.
 
 ---
 
@@ -282,21 +309,6 @@ deepspeed train_TriMotion.py \
 ```
 
 Training was performed on **4 × NVIDIA H200 GPUs** with AdamW (β₁=0.9, β₂=0.999, weight decay=0.01, lr=1×10⁻⁴).
-
----
-
-## Inference
-
-```bash
-python demo_multimodal.py \
-    --wan_model_path path/to/wan-video \
-    --embedding_model_path ./checkpoint/stage1/best.ckpt \
-    --projector_path ./checkpoint/stage2/best.ckpt \
-    --stage3_path ./checkpoint/stage3 \
-    --input_video path/to/reference.mp4 \
-    --prompt "The camera starts with a steady dolly-in motion while gradually panning left." \
-    --output_path output.mp4
-```
 
 ---
 
