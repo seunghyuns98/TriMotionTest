@@ -4,7 +4,7 @@ from natsort import natsorted
 import glob
 from functools import lru_cache
 import lightning as pl
-from model import Shared_Embedding_Space
+from model import Cam_Encoder
 import numpy as np
 import json
 import re
@@ -215,7 +215,7 @@ class LightningModelForLatentPreprocess(pl.LightningModule):
     ):
         super().__init__()
 
-        self.cam_encoder = Shared_Embedding_Space(
+        self.cam_encoder = Cam_Encoder(
             img_size=img_size,
             patch_size=patch_size,
             embed_dim=embed_dim,
