@@ -256,8 +256,6 @@ Trains motion encoders for all three modalities with a composite loss: global In
 
 ```bash
 python train_embedding_space.py \
-    --dataset_path ./MotionTriplet-Dataset \
-    --vggt_ckpt_path ./checkpoint/trimotion/aggregator.ckpt \
     --output_path ./checkpoint/embedding_space
 ```
 
@@ -269,20 +267,31 @@ Trains the predictor (3D convolutions + temporal Transformer) to estimate motion
 
 ```bash
 python train_motion_embedding_projector.py \
-    --dataset_path ./MotionTriplet-Dataset \
     --cam_ckpt_path PATH TO YOUR CAM ENCODER FROM PREVIOUS STAGE \
     --output_path ./checkpoint/motion_embedding_projector
 ```
 
 > 💡 Common knobs: `--batch_size` (default `8`), `--learning_rate` (default `1e-4`), `--max_epochs` (default `10`), `--training_strategy`, `--resume_ckpt_path`.
 
+### Preprocess Embeddings
+
+Precompute and cache embeddings before training:
+
+```bash
+python latent_preprocess.py \
+    --cam_encoder_ckpt_path PATH TO YOUR CAM ENCODER FROM PREVIOUS STAGE \
+```
+
+> 💡 You may also tune `--num_frames` (default `21`), `--height` / `--width` (default `224` / `448`), `--batch_size` (default `32`), and `--dataloader_num_workers` (default `8`) to match your hardware.
+
+---
+
 ### Diffusion Model Fine-tuning
 
 Fine-tunes WAN-Video with motion embedding conditioning via block-specific projection MLPs. Jointly trains I2V and V2V with equal probability per iteration.
 
 ```bash
-deepspeed train_TriMotion.py \
-    --dataset_path ./MotionTriplet-Dataset \
+train_TriMotion.py \
     --latent_path ./latent \
     --i2v_ckpt_path ./checkpoint/embedding_space/best.ckpt \
     --vae_projector_ckpt_path ./checkpoint/motion_embedding_projector/best.ckpt \
