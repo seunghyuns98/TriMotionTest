@@ -239,13 +239,12 @@ Precompute and cache embeddings before training:
 
 ```bash
 python latent_preprocess.py \
-    --base_path ./data \
-    --json_path ./data/merged_camera_dataset.json \
-    --t5_path path/to/t5-base \
-    --vggt_path path/to/vggt \
-    --embedding_model_path path/to/motion_embedding_checkpoint \
-    --output_dir ./data
+    --dataset_path ./MotionTriplet-Dataset \
+    --cam_encoder_ckpt_path ./checkpoint/trimotion/embedding_space.ckpt \
+    --output_path ./latent
 ```
+
+> 💡 You may also tune `--num_frames` (default `21`), `--height` / `--width` (default `224` / `448`), `--batch_size` (default `32`), and `--dataloader_num_workers` (default `8`) to match your hardware.
 
 ---
 
@@ -257,15 +256,12 @@ Trains motion encoders for all three modalities with a composite loss: global In
 
 ```bash
 python train_embedding_space.py \
-    --base_path ./data \
-    --json_path ./data/merged_camera_dataset.json \
-    --t5_path path/to/t5-base \
-    --vggt_path path/to/vggt \
-    --output_dir ./checkpoint/embedding_space \
-    --batch_size 16 \
-    --lr 1e-4 \
-    --epochs 100
+    --dataset_path ./MotionTriplet-Dataset \
+    --vggt_ckpt_path ./checkpoint/trimotion/aggregator.ckpt \
+    --output_path ./checkpoint/embedding_space
 ```
+
+> 💡 Common knobs: `--batch_size` (default `24`), `--learning_rate` (default `1e-4`), `--max_epochs` (default `100`), `--training_strategy` (`deepspeed_stage_1|2|3`), and `--resume_ckpt_path` to continue from a checkpoint.
 
 ### Motion Embedding Predictor
 
@@ -273,14 +269,13 @@ Trains the predictor (3D convolutions + temporal Transformer) to estimate motion
 
 ```bash
 python train_motion_embedding_projector.py \
-    --base_path ./data \
-    --json_path ./data/merged_camera_dataset.json \
-    --embedding_model_path ./checkpoint/embedding_space/best.ckpt \
-    --output_dir ./checkpoint/predictor \
-    --batch_size 24 \
-    --lr 1e-4 \
-    --epochs 10
+    --dataset_path ./MotionTriplet-Dataset \
+    --vae_path ./checkpoint/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth \
+    --cam_ckpt_path ./checkpoint/embedding_space/best.ckpt \
+    --output_path ./checkpoint/motion_embedding_projector
 ```
+
+> 💡 Common knobs: `--batch_size` (default `8`), `--learning_rate` (default `1e-4`), `--max_epochs` (default `10`), `--training_strategy`, `--resume_ckpt_path`.
 
 ### Diffusion Model Fine-tuning
 
@@ -288,17 +283,18 @@ Fine-tunes WAN-Video with motion embedding conditioning via block-specific proje
 
 ```bash
 deepspeed train_TriMotion.py \
-    --base_path ./data \
-    --json_path ./data/merged_camera_dataset.json \
-    --wan_model_path path/to/wan-video \
-    --t5_path path/to/t5-base \
-    --embedding_model_path ./checkpoint/embedding_space/best.ckpt \
-    --projector_path ./checkpoint/predictor/best.ckpt \
-    --output_dir ./checkpoint/trimotion_dit \
-    --batch_size 4 \
-    --lr 1e-4 \
-    --deepspeed_stage 2
+    --dataset_path ./MotionTriplet-Dataset \
+    --latent_path ./latent \
+    --text_encoder_path ./checkpoint/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth \
+    --image_encoder_path ./checkpoint/Wan2.1-T2V-1.3B/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth \
+    --vae_path ./checkpoint/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth \
+    --dit_path ./checkpoint/Wan2.1-T2V-1.3B/diffusion_pytorch_model.safetensors \
+    --i2v_ckpt_path ./checkpoint/embedding_space/best.ckpt \
+    --vae_projector_ckpt_path ./checkpoint/motion_embedding_projector/best.ckpt \
+    --output_path ./checkpoint/tri_motion
 ```
+
+> 💡 Common knobs: `--batch_size` (default `4`), `--accumulate_grad_batches` (default `4`), `--learning_rate` (default `1e-4`), `--max_epochs` (default `10`), `--num_frames` / `--height` / `--width` (default `81` / `384` / `672`), `--training_strategy` (default `deepspeed_stage_2`), `--resume_ckpt_path`.
 
 Training was performed on **4 × NVIDIA H200 GPUs** with AdamW (β₁=0.9, β₂=0.999, weight decay=0.01, lr=1×10⁻⁴).
 
