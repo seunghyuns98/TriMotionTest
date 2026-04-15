@@ -104,15 +104,6 @@ gdown --folder https://drive.google.com/drive/folders/1tQznlZwoSTFRzDhgmikVCGAbD
 
 `demo.py` runs a single-example inference. You must provide a source video (`--content_video`), a scene prompt (`--prompt`), and **at least one** camera reference among `--ref_video` / `--ref_text` / `--ref_pose`.
 
-```bash
-python demo.py \
-    --content_video examples/src_videos/1.mp4 \
-    --prompt        examples/prompt/1.txt \
-    --ref_video     examples/ref_videos/1.mp4 \
-    --output_dir    ./results \
-    --mode          v2v
-```
-
 #### Reference modalities
 
 | Flag | Accepts | Example |
