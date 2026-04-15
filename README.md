@@ -269,8 +269,7 @@ Precompute and cache embeddings before training:
 
 ```bash
 python latent_preprocess.py \
-    --cam_encoder_ckpt_path PATH TO YOUR CAM ENCODER WEIGHT \
-    --output_path ./latent
+    --cam_encoder_ckpt_path PATH TO YOUR CAM ENCODER WEIGHT
 ```
 
 > 💡 You may also tune `--num_frames` (default `21`), `--height` / `--width` (default `224` / `448`), `--batch_size` (default `32`), and `--dataloader_num_workers` (default `8`) to match your hardware.
