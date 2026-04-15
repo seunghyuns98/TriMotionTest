@@ -100,7 +100,7 @@ gdown --folder https://drive.google.com/drive/folders/1tQznlZwoSTFRzDhgmikVCGAbD
 
 ## 🚀 Inference
 
-### Single Modality
+### 1️⃣ Single Modality
 
 `demo.py` runs a single-example inference. You must provide a source video (`--content_video`), a scene prompt (`--prompt`), and **at least one** camera reference among `--ref_video` / `--ref_text` / `--ref_pose`.
 
@@ -149,7 +149,7 @@ python demo.py \
     --ref_pose      examples/ref_poses/cam02.txt \
 ```
 
-### Multi Modality
+### 🔀 Multi Modality
 
 `demo_multimodal.py` combines **exactly two** reference modalities from `--ref_video` / `--ref_text` / `--ref_pose` by fusing their motion embeddings. Two fusion modes are supported:
 
