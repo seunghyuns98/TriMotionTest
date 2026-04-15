@@ -360,7 +360,7 @@ def parse_args():
 def train(args, to_process=None):
     dataset = MotionTripletDataset(
         args.dataset_path,
-        max_num_frames=args.num_frames,
+        max_num_frames=args.max_num_frames,
         frame_interval=args.frame_interval,
         num_frames=args.num_frames,
         height=args.height,
