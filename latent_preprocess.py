@@ -75,7 +75,7 @@ def load_json_cached(path):
         return json.load(f)
 
 class MotionTripletDataset(torch.utils.data.Dataset):
-    def __init__(self, base_path, max_num_frames=21, frame_interval=4, num_frames=21, height=224, width=448, to_process=None):
+    def __init__(self, base_path, max_num_frames=81, frame_interval=4, num_frames=21, height=224, width=448, to_process=None):
 
         if to_process is not None:
             self.path = natsorted(to_process)
