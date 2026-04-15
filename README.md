@@ -45,7 +45,8 @@ Built on top of [Wan2.1](https://github.com/Wan-Video/Wan2.1) and supports both 
 ```bash
 git clone https://github.com/seunghyuns98/TriMotion.git
 cd TriMotion
-
+conda create -n TriMotion python=3.10
+conda activate TriMotion
 pip install -r requirements.txt
 ```
 
