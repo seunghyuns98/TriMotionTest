@@ -146,7 +146,7 @@ Reference text only:
 python demo.py \
     --content_video examples/src_videos/1.mp4 \
     --prompt        examples/prompt/1.txt \
-    --ref_text      examples/ref_texts/cam04.txt \
+    --ref_text      examples/ref_texts/cam04.txt 
 ```
 
 Reference pose only (JSON extrinsics):
@@ -154,7 +154,7 @@ Reference pose only (JSON extrinsics):
 python demo.py \
     --content_video examples/src_videos/1.mp4 \
     --prompt        examples/prompt/1.txt \
-    --ref_pose      examples/ref_poses/cam02.txt \
+    --ref_pose      examples/ref_poses/cam02.txt
 ```
 
 ### 🔀 Multi Modality
