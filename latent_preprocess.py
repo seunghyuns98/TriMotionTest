@@ -129,7 +129,6 @@ class MotionTripletDataset(torch.utils.data.Dataset):
         return frames
 
     def parse_matrix(self, matrix_str):
-        """행렬 문자열 파싱"""
         rows = matrix_str.strip().split('] [')
         matrix = []
         for row in rows:
@@ -161,7 +160,7 @@ class MotionTripletDataset(torch.utils.data.Dataset):
         video_path = self.path[data_id]
         video = self.load_video(video_path, self.frame_interval, self.num_frames, self.height, self.width, self.mean_embed, self.std_embed)
         base_path = video_path.rsplit('/', 2)[0]
-        caption_data = load_json_cached(os.path.join(base_path, 'merged_camera_dataset.json'))
+        caption_data = load_json_cached(os.path.join(base_path, 'merged_conditions.json'))
         
         cam_idx = int(re.search(r'cam(\d+)', video_path).group(1))
         cam_data = caption_data[f"cam{cam_idx:02d}"]
@@ -283,15 +282,14 @@ def parse_args():
     parser.add_argument(
         "--dataset_path",
         type=str,
-        default=None,
-        required=True,
+        default="./MotionTriplet-Dataset",
         help="The path of the Dataset.",
     )
 
     parser.add_argument(
         "--cam_encoder_ckpt_path",
         type=str,
-        default=None,
+        default="./checkpoint/trimotion/embedding_space.ckpt",
         required=True,
         help="Path of Shared Embedding Space.",
     )
