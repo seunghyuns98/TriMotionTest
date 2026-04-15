@@ -2,12 +2,6 @@
 
 # TriMotion: Modality-Agnostic Camera Control for Video Generation
 
-<!-- [![Paper](https://img.shields.io/badge/Paper-arXiv-red)](#) -->
-<!-- [![Project Page](https://img.shields.io/badge/Project-Page-blue)](#) -->
-<!-- [![Demo](https://img.shields.io/badge/Demo-HuggingFace-yellow)](#) -->
-<!-- [![Dataset](https://img.shields.io/badge/Dataset-GoogleDrive-green)](#) -->
-
-<!-- **ECCV 2026** -->
 
 *A unified framework for camera-controlled video generation that accepts **video**, **pose**, or **text** — all describing the same camera trajectory — and maps them into a shared motion embedding space.*
 
@@ -21,7 +15,7 @@
 
 ## 📢 News
 
-<!-- - **[2026-03]** TriMotion is accepted to ECCV 2026. 🎉 -->
+
 - **[2026-04]** Code, checkpoints, and the **Motion Triplet Dataset** are released.
 
 ---
@@ -295,17 +289,6 @@ train_trimotion.py \
 > 💡 Common knobs: `--batch_size` (default `4`), `--accumulate_grad_batches` (default `4`), `--learning_rate` (default `1e-4`), `--max_epochs` (default `10`), `--num_frames` / `--height` / `--width` (default `81` / `384` / `672`), `--training_strategy` (default `deepspeed_stage_2`), `--resume_ckpt_path`.
 
 Training was performed on **4 × NVIDIA H200 GPUs** with AdamW (β₁=0.9, β₂=0.999, weight decay=0.01, lr=1×10⁻⁴).
-
-## Citation
-
-```bibtex
-@inproceedings{trimotion2026,
-  title={TriMotion: Modality-Agnostic Camera Control for Video Generation},
-  booktitle={European Conference on Computer Vision (ECCV)},
-  year={2026}
-}
-```
-
 ---
 
 ## Acknowledgements
