@@ -94,7 +94,7 @@ gdown --folder https://drive.google.com/drive/folders/1tQznlZwoSTFRzDhgmikVCGAbD
 |---|---|
 | Unified Motion Embedding Space | Video / text / pose encoders |
 | Motion Embedding Predictor | Latent → motion embedding |
-| Wan2.1 Fine-tuned DiT | Camera-controlled I2V / V2V |
+| Wan2.1 Fine-tuned DiT | Camera-controlled I2V / V2V (fine-tuned from the [CamCloneMaster-Wan2.1](https://huggingface.co/KwaiVGI/CamCloneMaster-Wan2.1) I2V model) |
 | VGGT Aggregator | Aggregator weights extracted from [VGGT](https://github.com/facebookresearch/vggt) and used to initialize the video motion encoder (required for both training and inference) |
 
 ---
@@ -256,6 +256,8 @@ Trains motion encoders for all three modalities with a composite loss: global In
 
 ```bash
 python train_embedding_space.py \
+    --dataset_path ./MotionTriplet-Dataset \
+    --vggt_ckpt_path ./checkpoint/trimotion/aggregator.ckpt \
     --output_path ./checkpoint/embedding_space
 ```
 
@@ -267,32 +269,26 @@ Trains the predictor (3D convolutions + temporal Transformer) to estimate motion
 
 ```bash
 python train_motion_embedding_projector.py \
-    --cam_ckpt_path PATH TO YOUR CAM ENCODER FROM PREVIOUS STAGE \
+    --dataset_path ./MotionTriplet-Dataset \
+    --vae_path ./checkpoint/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth \
+    --cam_ckpt_path ./checkpoint/embedding_space/best.ckpt \
     --output_path ./checkpoint/motion_embedding_projector
 ```
 
 > 💡 Common knobs: `--batch_size` (default `8`), `--learning_rate` (default `1e-4`), `--max_epochs` (default `10`), `--training_strategy`, `--resume_ckpt_path`.
-
-### Preprocess Embeddings
-
-Precompute and cache embeddings before training:
-
-```bash
-python latent_preprocess.py \
-    --cam_encoder_ckpt_path PATH TO YOUR CAM ENCODER FROM PREVIOUS STAGE \
-```
-
-> 💡 You may also tune `--num_frames` (default `21`), `--height` / `--width` (default `224` / `448`), `--batch_size` (default `32`), and `--dataloader_num_workers` (default `8`) to match your hardware.
-
----
 
 ### Diffusion Model Fine-tuning
 
 Fine-tunes WAN-Video with motion embedding conditioning via block-specific projection MLPs. Jointly trains I2V and V2V with equal probability per iteration.
 
 ```bash
-train_TriMotion.py \
+deepspeed train_TriMotion.py \
+    --dataset_path ./MotionTriplet-Dataset \
     --latent_path ./latent \
+    --text_encoder_path ./checkpoint/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth \
+    --image_encoder_path ./checkpoint/Wan2.1-T2V-1.3B/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth \
+    --vae_path ./checkpoint/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth \
+    --dit_path ./checkpoint/Wan2.1-T2V-1.3B/diffusion_pytorch_model.safetensors \
     --i2v_ckpt_path ./checkpoint/embedding_space/best.ckpt \
     --vae_projector_ckpt_path ./checkpoint/motion_embedding_projector/best.ckpt \
     --output_path ./checkpoint/tri_motion
@@ -302,11 +298,82 @@ train_TriMotion.py \
 
 Training was performed on **4 × NVIDIA H200 GPUs** with AdamW (β₁=0.9, β₂=0.999, weight decay=0.01, lr=1×10⁻⁴).
 
+---
+
+## Method
+
+### Unified Motion Embedding Space
+
+Each modality encoder produces `N` temporal motion tokens + 1 global token, processed by a lightweight temporal Transformer `T_m`:
+
+| Modality | Encoder | Key design |
+|---|---|---|
+| Video | VGGT Aggregator (Alternating-Attention blocks) | Camera tokens aggregate multi-view 3D geometry |
+| Text | Frozen T5 + N learnable motion queries (cross-attention) | Lifts static text into temporal motion sequence |
+| Pose | Frame-wise MLP (GELU) on flattened 3×4 extrinsic matrix | Preserves geometric trajectory structure |
+
+**Training objectives:**
+
+- **L_NCE** (Global Alignment): InfoNCE contrastive loss over all 3 modality pairs
+- **L_temp** (Temporal Synchronization): Cosine distance between corresponding temporal tokens
+- **L_pose** (Geometric Fidelity): Shared pose regressor predicting camera extrinsics from each modality embedding (L1 loss)
+
+```
+L_align = L_NCE + λ_t · L_temp + λ_p · L_pose
+```
+
+### Latent Motion Consistency
+
+A frozen Motion Embedding Predictor `M_pred` estimates a motion embedding from the reconstructed clean latent during diffusion training:
+
+```
+ẑ_0 = z_t - t · v_θ(z̃_t, t, y, I, e_m)
+L_total = L_denoise + λ_m · L_motion(M_pred(ẑ_0), e_m)
+```
+
+This enforces trajectory adherence without pixel-space decoding.
+
+### Motion Conditioning
+
+Motion embeddings are injected into each DiT block via a block-specific projection MLP with residual addition:
+
+```
+h_in = h + F_proj(e_m)
+```
+
+Only the 3D spatial-temporal attention layers and projection MLPs are updated during fine-tuning.
+
+---
+
+## Applications
+
+### Sequential Motion Composition
+
+Concatenate two motion sequences (offset by the final state of the first) to generate compound multi-stage camera trajectories across any modality combination.
+
+### Cross-Modal Motion Interpolation
+
+Linearly interpolate between motion embeddings `e_a` and `e_b` from different modalities to produce smooth blended camera motion.
+
+---
+
+## Citation
+
+```bibtex
+@inproceedings{trimotion2026,
+  title={TriMotion: Modality-Agnostic Camera Control for Video Generation},
+  booktitle={European Conference on Computer Vision (ECCV)},
+  year={2026}
+}
+```
+
+---
 
 ## Acknowledgements
 
 - [WAN-Video](https://github.com/Wan-Video/Wan2.1) — diffusion backbone
 - [VGGT](https://github.com/facebookresearch/vggt) — video motion encoder
 - [ReCamMaster](https://github.com/jianhongbai/ReCamMaster) — Multi-Cam Video Dataset
+- [CamCloneMaster](https://huggingface.co/KwaiVGI/CamCloneMaster-Wan2.1) — I2V initialization for DiT fine-tuning
 - [Qwen3](https://github.com/QwenLM/Qwen3) — geometry-grounded caption generation
 - [Hugging Face Transformers](https://github.com/huggingface/transformers) — T5 text encoder
